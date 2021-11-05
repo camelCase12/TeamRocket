@@ -9,6 +9,10 @@ class Button {
     return true;
   }
   
+  void init() {
+    textAlign(CENTER); 
+  }
+  
   void render() { // Draw the button -> backcolor/border -> text
     //Draw backcolor, if hovered over
     stroke(255);
@@ -17,7 +21,7 @@ class Button {
     rect(x, y, Width, Height);
     //Draw text
     fill(255);
-    text(text, x + 5, y + 30);
+    text(text, x + Width/2, y + 30);
   }
   
   Button(float x, float y, float Width, float Height, String text) {
