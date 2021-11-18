@@ -11,6 +11,7 @@ class Button {
   
   void init() {
     textAlign(CENTER); 
+    textSize(30);
   }
   
   void render() { // Draw the button -> backcolor/border -> text
@@ -21,7 +22,7 @@ class Button {
     rect(x, y, Width, Height);
     //Draw text
     fill(255);
-    text(text, x + Width/2, y + 30);
+    text(text, x + Width/2, y + 35);
   }
   
   Button(float x, float y, float Width, float Height, String text) {
