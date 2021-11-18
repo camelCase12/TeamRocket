@@ -3,5 +3,5 @@ void initVehicleFlight() {
 }
 
 void vehicleFlightDriver() {
-
+  flightWindow.render();
 }

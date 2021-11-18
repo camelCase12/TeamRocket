@@ -8,16 +8,3 @@ void initMainMenu() {
 void mainMenuDriver() {
   mainMenuWindow.render();
 }
-/*
-      image(img, 160, 50); //Displays title image
-      for(int i = 0; i < 2; i++) { //Robert's Note: I modified this For loop to only display the main menu buttons
-        if(b[i].isInBounds(mouseX, mouseY)) {
-         b[i].hoverState = true; 
-        }
-        else {
-         b[i].hoverState = false; 
-        }
-    
-        b[i].render();
-      }
-      */
