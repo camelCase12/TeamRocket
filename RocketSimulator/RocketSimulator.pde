@@ -1,60 +1,55 @@
-Button[] b = new Button[3];
-PImage img;
-String menu;
+//Global/static variables--each window and the window state
+Window mainMenuWindow;
+Window assemblyWindow;
+Window flightWindow;
+int windowState;
 
+//Called upon program launch.
 void setup() {
+  //Set background color to black and size to 750px*750px
   background(0);
   size(750, 750);
-  b[0] = new Button(280, 400, 200, 50, "Play Game");
-  b[1] = new Button(280, 600, 200, 50, "Options");
-  b[0].init();
-  img = loadImage("titlelogo.png");
-  menu = "Main Menu";
   
-  b[2] = new Button(280, 450, 200, 50, "Main Menu");  //A placeholder button for the sandbox
+  //Initialize each window
+  initMainMenu();
+  initVehicleAssembly();
+  initVehicleFlight();
+  
+  //Set the first windowState to MAIN_MENU
+  windowState = WindowState.MAIN_MENU;
 }
 
-void init() {
- textAlign(CENTER);
-}
-
+//Called each frame.
 void draw() {
+  //Clear the frame before drawing
   background(0);
   
-  switch(menu) {
-    case "Main Menu":
-      image(img, 160, 50); //Displays title image
-      for(int i = 0; i < 2; i++) { //Robert's Note: I modified this For loop to only display the main menu buttons
-        if(b[i].isInBounds(mouseX, mouseY)) {
-         b[i].hoverState = true; 
-        }
-        else {
-         b[i].hoverState = false; 
-        }
-    
-        b[i].render();
-      }
+  //Based on the current windowState, pick a driver to run
+  switch(windowState) {
+    case WindowState.MAIN_MENU:
+      mainMenuDriver();
       break;
-    case "Vehicle Assembly":
+    case WindowState.VEHICLE_ASSEMBLY:
       vehicleAssemblyDriver();
+      break;
+    case WindowState.VEHICLE_FLIGHT:
+      vehicleFlightDriver();
       break;
   }
 }
 
+//Called when mouse is pressed.
 void mousePressed() {
-  for(int i = 0; i < b.length; i++) {
-    if(b[i].isInBounds(mouseX, mouseY)) {
-      println("Button " + i + " was clicked.");
-      switch (i) {
-        case 0:
-          menu = "Vehicle Assembly";
-          break;
-        case 1:
-          break;
-        case 2:
-          menu = "Main Menu";
-      }
+  //Based on the current windowState, pick a mouse handler to run
+  switch(windowState) {
+    case WindowState.MAIN_MENU:
+      mainMenuWindow.handleMouseClick();
       break;
-    }
+    case WindowState.VEHICLE_ASSEMBLY:
+      assemblyWindow.handleMouseClick();
+      break;
+    case WindowState.VEHICLE_FLIGHT:
+      flightWindow.handleMouseClick();
+      break;
   }
 }

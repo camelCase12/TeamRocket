@@ -1,12 +1,8 @@
+void initVehicleAssembly() {
+  assemblyWindow = new Window();
+  assemblyWindow.addButton(280, 450, 200, 50, "mainMenuBtn", "Main Menu", 30);
+}
+
 void vehicleAssemblyDriver() {
-  for(int i = 2; i < b.length; i++) {
-    if(b[i].isInBounds(mouseX, mouseY)) {
-      b[i].hoverState = true; 
-    }
-    else {
-      b[i].hoverState = false; 
-    }
-    
-    b[i].render();
-  }
+  assemblyWindow.render();
 }
