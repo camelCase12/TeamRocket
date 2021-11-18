@@ -3,6 +3,7 @@ Window mainMenuWindow;
 Window assemblyWindow;
 Window flightWindow;
 int windowState;
+BuilderGrid bg;
 
 //Called upon program launch.
 void setup() {
@@ -47,6 +48,7 @@ void mousePressed() {
       break;
     case WindowState.VEHICLE_ASSEMBLY:
       assemblyWindow.handleMouseClick();
+      bg.handleMouseClick();
       break;
     case WindowState.VEHICLE_FLIGHT:
       flightWindow.handleMouseClick();

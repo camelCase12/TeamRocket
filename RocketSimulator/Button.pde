@@ -13,7 +13,7 @@ class Button {
   
   void render() { // Draw the button -> backcolor/border -> text
     textAlign(CENTER);
-    textSize(30);
+    textSize(textSize);
     //Draw backcolor, if hovered over
     stroke(255);
     fill(0);
