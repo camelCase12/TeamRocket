@@ -9,5 +9,12 @@ void globalButtonHandler(String buttonName) {
       break;
     case "mainMenuBtn":
       windowState = WindowState.MAIN_MENU;
+      break;
+    case "optionsBtn":
+      windowState = WindowState.OPTIONS;
+      break;
+    case "optionsBtn1":
+      windowState = WindowState.MAIN_MENU;
+      break;
   }
 }

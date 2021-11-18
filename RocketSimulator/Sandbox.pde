@@ -6,7 +6,8 @@ void initVehicleAssembly() {
   assemblyWindow.addButton(210, 650, 150, 50, "structureBtn", "Structure Block", 18);
   assemblyWindow.addButton(390, 650, 150, 50, "thrusterBtn", "Thuster Block", 18);
   assemblyWindow.addButton(570, 650, 150, 50, "fuelBtn", "Fuel Block", 18);
-  bg = new BuilderGrid(9, 9, 30, 30, 400, 400);
+  assemblyWindow.addButton(570, 450, 150, 50, "fuelBtn", "Fuel Block", 18);
+  bg = new BuilderGrid(3, 3, 0, 0, 400, 400);
 }
 
 void vehicleAssemblyDriver() {

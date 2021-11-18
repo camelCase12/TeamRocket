@@ -2,6 +2,7 @@
 Window mainMenuWindow;
 Window assemblyWindow;
 Window flightWindow;
+Window optionsWindow;
 int windowState;
 BuilderGrid bg;
 
@@ -15,6 +16,7 @@ void setup() {
   initMainMenu();
   initVehicleAssembly();
   initVehicleFlight();
+  initOptions();
   
   //Set the first windowState to MAIN_MENU
   windowState = WindowState.MAIN_MENU;
@@ -36,6 +38,9 @@ void draw() {
     case WindowState.VEHICLE_FLIGHT:
       vehicleFlightDriver();
       break;
+    case WindowState.OPTIONS:
+      optionsDriver();
+      break;
   }
 }
 
@@ -52,6 +57,9 @@ void mousePressed() {
       break;
     case WindowState.VEHICLE_FLIGHT:
       flightWindow.handleMouseClick();
+      break;
+    case WindowState.OPTIONS:
+      optionsWindow.handleMouseClick();
       break;
   }
 }
