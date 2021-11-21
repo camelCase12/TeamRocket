@@ -17,10 +17,19 @@ void globalButtonHandler(String buttonName) {
       break;
     case "instructionsBtn":
       windowState = WindowState.INSTRUCTIONS;
+      break;
       
     //Options menu cases
     case "backgroundBtn":
-      //white = black; black = 0;   //Variables need to be set and inverted everywhere...
+      if (white == 255) {
+        white = black; 
+        black = 255;
+        gray = 200;
+      } else {
+        black = white;
+        white = 255;
+        gray = 0;
+      }
       break;
     case "soundBtn":
       if (sound == true) {

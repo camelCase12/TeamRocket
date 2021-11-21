@@ -9,13 +9,14 @@ BuilderGrid bg;
 
 //Options menu variables
 boolean sound = true;
-int black = 255;
-int white = 0;
+int black = 0;
+int white = 255;
+int gray = 0;
 
 //Called upon program launch.
 void setup() {
   //Set background color to black and size to 750px*750px
-  background(0);
+  background(gray);
   size(750, 750);
   
   //Initialize each window
@@ -32,7 +33,7 @@ void setup() {
 //Called each frame.
 void draw() {
   //Clear the frame before drawing
-  background(0);
+  background(gray);
   
   //Based on the current windowState, pick a driver to run
   switch(windowState) {

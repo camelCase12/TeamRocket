@@ -14,12 +14,12 @@ class Button {
     textAlign(CENTER);
     textSize(textSize);
     //Draw backcolor, if hovered over
-    stroke(255);
-    fill(0);
+    stroke(white);
+    fill(black);
     if(hoverState) fill(80); 
     rect(x, y, Width, Height);
     //Draw text
-    fill(255);
+    fill(white);
     text(text, x + Width/2, y + 35);
   }
   

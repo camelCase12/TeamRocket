@@ -5,8 +5,8 @@ class BuilderGrid {
   float cellSizeX, cellSizeY;
   
   void render() {
-    stroke(255);
-    fill(0);
+    stroke(white);
+    fill(black);
     for(int i = 0; i < grid.length; i++) {
       for(int j = 0; j < grid[0].length; j++) {
         rect(x + cellSizeX*i, y + cellSizeY*j, cellSizeX, cellSizeY);

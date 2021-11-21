@@ -9,7 +9,7 @@ class Label {
     textAlign(LEFT);
     textSize(textSize);
     //Draw backcolor, if hovered over
-    stroke(255);
+    stroke(white);
     text(text, x + Width/2, y + 35);
   }
   
