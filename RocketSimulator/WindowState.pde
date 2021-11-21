@@ -4,4 +4,5 @@ class WindowState {
   final static int VEHICLE_ASSEMBLY = 1;
   final static int VEHICLE_FLIGHT = 2;
   final static int OPTIONS = 3;
+  final static int INSTRUCTIONS = 4;
 }

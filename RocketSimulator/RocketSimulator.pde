@@ -3,8 +3,14 @@ Window mainMenuWindow;
 Window assemblyWindow;
 Window flightWindow;
 Window optionsWindow;
+Window instructionsWindow;
 int windowState;
 BuilderGrid bg;
+
+//Options menu variables
+boolean sound = true;
+int black = 255;
+int white = 0;
 
 //Called upon program launch.
 void setup() {
@@ -17,6 +23,7 @@ void setup() {
   initVehicleAssembly();
   initVehicleFlight();
   initOptions();
+  initInstructions();
   
   //Set the first windowState to MAIN_MENU
   windowState = WindowState.MAIN_MENU;
@@ -41,6 +48,9 @@ void draw() {
     case WindowState.OPTIONS:
       optionsDriver();
       break;
+    case WindowState.INSTRUCTIONS:
+      instructionsDriver();
+      break;
   }
 }
 
@@ -60,6 +70,9 @@ void mousePressed() {
       break;
     case WindowState.OPTIONS:
       optionsWindow.handleMouseClick();
+      break;
+    case WindowState.INSTRUCTIONS:
+      instructionsWindow.handleMouseClick();
       break;
   }
 }

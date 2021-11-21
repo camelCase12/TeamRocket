@@ -1,4 +1,3 @@
-
 class Button {
   float x, y, Width, Height; // Capitalized because of width/height reserved
   String text;
