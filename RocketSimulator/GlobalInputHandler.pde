@@ -40,5 +40,22 @@ void globalButtonHandler(String buttonName) {
       print("Turned the sound on!\n");
       }
       break;
+    
+    //Block choice cases
+    case "eraseBtn":
+      mouseHolder.currentPart.setType(RocketPartTypes.EMPTY);
+      break;
+    case "structureBtn":
+      mouseHolder.currentPart.setType(RocketPartTypes.BLOCK);
+      break;
+    case "thrusterBtn":
+      mouseHolder.currentPart.setType(RocketPartTypes.THRUSTER);
+      break;
+    case "fuelBtn":
+      mouseHolder.currentPart.setType(RocketPartTypes.FUEL);
+      break;
+    case "crewBtn":
+      mouseHolder.currentPart.setType(RocketPartTypes.CREWCAPSULE);
+      break;
   }
 }

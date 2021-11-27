@@ -4,6 +4,7 @@ Window assemblyWindow;
 Window flightWindow;
 Window optionsWindow;
 Window instructionsWindow;
+MouseHolder mouseHolder;
 int windowState;
 BuilderGrid bg;
 
@@ -25,6 +26,10 @@ void setup() {
   initVehicleFlight();
   initOptions();
   initInstructions();
+  
+  //Test initialize mouseHolder
+  mouseHolder = new MouseHolder();
+  mouseHolder.currentPart.setType(RocketPartTypes.BLOCK);
   
   //Set the first windowState to MAIN_MENU
   windowState = WindowState.MAIN_MENU;

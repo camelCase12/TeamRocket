@@ -9,7 +9,12 @@ class BuilderGrid {
     fill(black);
     for(int i = 0; i < grid.length; i++) {
       for(int j = 0; j < grid[0].length; j++) {
+        //Draw the cell itself
         rect(x + cellSizeX*i, y + cellSizeY*j, cellSizeX, cellSizeY);
+        
+        //Draw the part in the cell
+        float scaleDown = 0.9;
+        grid[i][j].render(scaleDown*cellSizeX, x + cellSizeX*i + cellSizeX*(1-scaleDown)/2, y + cellSizeY*j + cellSizeY*(1-scaleDown)/2);
       }
     }
   }
@@ -24,6 +29,15 @@ class BuilderGrid {
     if(clickedSquareX < 0 || clickedSquareY < 0 || clickedSquareX > grid.length
         || clickedSquareY > grid[0].length) {
           return;
+    }
+    //Place whatever is in the mouseHolder into the square, or pick up the square if the mouseHolder is empty
+    if(mouseHolder.currentPart.type == RocketPartTypes.EMPTY) { // Pick up what is in the square
+      mouseHolder.currentPart.setType(grid[clickedSquareX][clickedSquareY].type);
+      grid[clickedSquareX][clickedSquareY].setType(RocketPartTypes.EMPTY);
+    }
+    else { // Place down item into the square
+      grid[clickedSquareX][clickedSquareY].setType(mouseHolder.currentPart.type);
+      mouseHolder.currentPart.setType(RocketPartTypes.EMPTY);
     }
     println("Clicked grid at: (x: " + clickedSquareX + ", y: " + clickedSquareY + ")");
   }
