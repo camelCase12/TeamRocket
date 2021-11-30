@@ -7,9 +7,11 @@ Window instructionsWindow;
 MouseHolder mouseHolder;
 int windowState;
 BuilderGrid bg;
+Rocket rocket;
 
 //Options menu variables
 boolean sound = true;
+boolean debug = true;
 int black = 0;
 int white = 255;
 int gray = 0;
@@ -29,7 +31,6 @@ void setup() {
   
   //Test initialize mouseHolder
   mouseHolder = new MouseHolder();
-  mouseHolder.currentPart.setType(RocketPartTypes.BLOCK);
   
   //Set the first windowState to MAIN_MENU
   windowState = WindowState.MAIN_MENU;

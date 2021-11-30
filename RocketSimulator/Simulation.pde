@@ -4,4 +4,5 @@ void initVehicleFlight() {
 
 void vehicleFlightDriver() {
   flightWindow.render();
+  rocket.render();
 }

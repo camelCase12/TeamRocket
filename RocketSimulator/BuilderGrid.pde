@@ -26,8 +26,8 @@ class BuilderGrid {
     //Calculate the square that the mouse would land in
     int clickedSquareX = (int)(gridNormalizedMouseX / cellSizeX);
     int clickedSquareY = (int)(gridNormalizedMouseY / cellSizeY);
-    if(clickedSquareX < 0 || clickedSquareY < 0 || clickedSquareX > grid.length
-        || clickedSquareY > grid[0].length) {
+    if(clickedSquareX < 0 || clickedSquareY < 0 || clickedSquareX >= grid.length
+        || clickedSquareY >= grid[0].length) {
           return;
     }
     //Place whatever is in the mouseHolder into the square, or pick up the square if the mouseHolder is empty

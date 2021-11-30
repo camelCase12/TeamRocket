@@ -9,6 +9,10 @@ void globalButtonHandler(String buttonName) {
     case "mainMenuBtn":
       windowState = WindowState.MAIN_MENU;
       break;
+    case "flightBtn":
+      rocket = new Rocket(bg);
+      windowState = WindowState.VEHICLE_FLIGHT;
+      break;
     case "optionsBtn":
       windowState = WindowState.OPTIONS;
       break;
