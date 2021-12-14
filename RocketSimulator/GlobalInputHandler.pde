@@ -22,6 +22,9 @@ void globalButtonHandler(String buttonName) {
     case "instructionsBtn":
       windowState = WindowState.INSTRUCTIONS;
       break;
+    case "exitFlightBtn":
+      windowState = WindowState.VEHICLE_ASSEMBLY;
+      break;
       
     //Options menu cases
     case "backgroundBtn":
@@ -61,5 +64,35 @@ void globalButtonHandler(String buttonName) {
     case "crewBtn":
       mouseHolder.currentPart.setType(RocketPartTypes.CREWCAPSULE);
       break;
+  }
+}
+
+void globalKeyHandler() {
+  if(key == CODED) {
+    switch(keyCode) {
+      case LEFT:
+        rocket.pitchLeft = true;
+        break;
+      case RIGHT:
+        rocket.pitchRight = true;
+        break;
+    }
+  }
+  else if (key == ' ') {
+    //Change thrust on and off when space is pressed
+    rocket.thrustState = !rocket.thrustState;
+  }
+}
+
+void globalReleaseHandler() {
+  if(key == CODED) {
+    switch(keyCode) {
+      case LEFT:
+        rocket.pitchLeft = false;
+        break;
+      case RIGHT:
+        rocket.pitchRight = false;
+        break;
+    }
   }
 }

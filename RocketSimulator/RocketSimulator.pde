@@ -83,3 +83,16 @@ void mousePressed() {
       break;
   }
 }
+
+//Called when key is pressed.
+void keyPressed() {
+  if(windowState==WindowState.VEHICLE_FLIGHT) {
+    globalKeyHandler();
+  }
+}
+
+void keyReleased() {
+  if(windowState==WindowState.VEHICLE_FLIGHT) {
+    globalReleaseHandler();
+  }
+}

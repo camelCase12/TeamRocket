@@ -1,7 +1,26 @@
 
 class Rocket {
-  float x, y;
+  float x = width / 2;
+  float y = height - 60;
+  float velX, velY = 0;
+  float accX, accY = 0;
+  float mass = 20;
+  float inertialMoment;
+  float angularPosition; // may be unnecessary?
+  float angularVelocity;
+  float angularAcceleration;
+  float gConstant = 5;
+  float fuelMaximum;
+  float fuelAggregate;
+  float fuelAmountConstant = 30;
+  float fuelUsageConstant = 0.01;
+  float thrustConstant = 0.4;
+  boolean thrustState = false;
+  boolean pitchLeft = false;
+  boolean pitchRight = false;
+  float rotationConstant = 0.01;
   LineSegment[] segments;
+  LineSegment[] thrustVectors;
   RocketPart[] rocketParts;
   int scale = 30;
   
@@ -11,19 +30,184 @@ class Rocket {
       line(segments[i].startPos.x+x, segments[i].startPos.y+y, segments[i].endPos.x+x, segments[i].endPos.y+y);
     }
     if(debug) {
+      //Draw center of mass
       stroke(255, 0, 0);
       fill(255, 0, 0);
       circle(x, y, 5);
+      
+      //Draw thrust vectors
+      stroke(0, 255, 0);
+      fill(0, 255, 0);
+      for(int i = 0; i < thrustVectors.length; i++) {
+        line(thrustVectors[i].startPos.x+x, thrustVectors[i].startPos.y+y, thrustVectors[i].endPos.x+x, thrustVectors[i].endPos.y+y);
+      }
+      
+      //Draw fuel amount
+      stroke(255);
+      fill(0);
+      rect(20, 20, width - 40, 20);
+      fill(255);
+      stroke(0);
+      rect(21, 21, (fuelAggregate / fuelMaximum) * (width - 42), 18);
     }
+  }
+  
+  //Rotates the rocket and its thrust vectors about the center of mass by angleRads
+  void rotateRocket(float angleRads) {
+    //Flip the polarity to ensure counterclockwise rotation for positive angles
+    angleRads = -angleRads;
+    
+    //Rotate main segments
+    for(int i = 0; i < segments.length; i++) {
+      //Points to rotate -> are already in relation to center of mass
+      Vector2D startPos = segments[i].startPos;
+      Vector2D endPos = segments[i].endPos;
+      
+      //Calculate rotated points
+      Vector2D newStartPos = new Vector2D(startPos.x * cos(angleRads) - startPos.y * sin(angleRads),
+                                          startPos.x * sin(angleRads) + startPos.y * cos(angleRads));
+      Vector2D newEndPos = new Vector2D(endPos.x * cos(angleRads) - endPos.y * sin(angleRads),
+                                          endPos.x * sin(angleRads) + endPos.y * cos(angleRads));
+      
+      //Assign new rotated values
+      segments[i].startPos = newStartPos;
+      segments[i].endPos = newEndPos;
+    }
+    
+    //Rotate thrust vectors
+    for(int i = 0; i < thrustVectors.length; i++) {
+      //Points to rotate -> are already in relation to center of mass
+      Vector2D startPos = thrustVectors[i].startPos;
+      Vector2D endPos = thrustVectors[i].endPos;
+      
+      //Calculate rotated points
+      Vector2D newStartPos = new Vector2D(startPos.x * cos(angleRads) - startPos.y * sin(angleRads),
+                                          startPos.x * sin(angleRads) + startPos.y * cos(angleRads));
+      Vector2D newEndPos = new Vector2D(endPos.x * cos(angleRads) - endPos.y * sin(angleRads),
+                                          endPos.x * sin(angleRads) + endPos.y * cos(angleRads));
+      
+      //Assign new rotated values
+      thrustVectors[i].startPos = newStartPos;
+      thrustVectors[i].endPos = newEndPos;
+    }
+  }
+  
+  void calculateLinearAcceleration() {
+    //Clear acceleration values
+    accY = 0;
+    accX = 0;
+    
+    //Apply thrust
+    if(thrustState) {
+      for(int i = 0; i < thrustVectors.length; i++) {
+        if(fuelAggregate > 0) {
+          fuelAggregate -= fuelUsageConstant; // Reduce fuel to power the thruster
+        }
+        //Calculate thrust vector
+        Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x,
+                                             thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
+        Vector2D normalizedThrust = thrustVector.getNormalized();
+        
+        //Apply thrust to linear acceleration
+        accY += normalizedThrust.y*thrustConstant / mass;
+        accX += normalizedThrust.x*thrustConstant / mass;
+      }
+    }
+  }
+  
+  void calculateAngularAcceleration() {
+    //Clear acceleration value
+    angularAcceleration = 0;
+    
+    //Apply thrust
+    if(thrustState) {
+      for(int i = 0; i < thrustVectors.length; i++) {
+        if(fuelAggregate > 0) {
+          fuelAggregate -= fuelUsageConstant; // Reduce fuel to power the thruster
+        }
+        //Calculate thrust vector
+        Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x,
+                                             thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
+        
+        //Apply thrust to angular acceleration
+        //torque = r * F * sin(theta)
+        //aka torque = point of force application * force magnitude * sin(angle between point vector and force vector)
+        Vector2D r = thrustVectors[i].startPos;
+        float theta = thrustVector.getAngle(r);
+        float torque = r.magnitude() * thrustConstant * sin(theta);
+        
+        angularAcceleration += torque/inertialMoment;
+      }
+    }
+  }
+  
+  //Changes the angles of thrusters if left/right keys are pressed
+  void angleThrusters() {
+    if(pitchLeft) {
+      for(int i = 0; i < thrustVectors.length; i++) {
+        //Get thrustVector zeroed to its start point
+        Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x, thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
+        
+        //Rotate
+        Vector2D newThrustVector = new Vector2D(thrustVector.x * cos(rotationConstant) - thrustVector.y * sin(rotationConstant),
+                                                thrustVector.x * sin(rotationConstant) + thrustVector.y * cos(rotationConstant));
+                      
+        //Reassign
+        thrustVectors[i].endPos.x = thrustVectors[i].startPos.x + newThrustVector.x;
+        thrustVectors[i].endPos.y = thrustVectors[i].startPos.y + newThrustVector.y;
+      }
+    }
+    if(pitchRight) {
+      for(int i = 0; i < thrustVectors.length; i++) {
+        //Get thrustVector zeroed to its start point
+        Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x, thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
+        
+        //Rotate
+        Vector2D newThrustVector = new Vector2D(thrustVector.x * cos(-rotationConstant) - thrustVector.y * sin(-rotationConstant),
+                                                thrustVector.x * sin(-rotationConstant) + thrustVector.y * cos(-rotationConstant));
+        
+        //Reassign
+        thrustVectors[i].endPos.x = thrustVectors[i].startPos.x + newThrustVector.x;
+        thrustVectors[i].endPos.y = thrustVectors[i].startPos.y + newThrustVector.y;
+      }
+    }
+  }
+  
+  void update() {
+    
+    //Angle the thrusters according to input
+    angleThrusters();
+    
+    //Calculate basic physics
+    calculateLinearAcceleration();
+    calculateAngularAcceleration();
+    angularVelocity += angularAcceleration;
+    rotateRocket(angularVelocity);
+    velX += accX;
+    velY += accY;
+    x -= velX;
+    y -= velY; // This is very important->velocity is reversed in the y direction for rendering
   }
   
   void zeroToCenterOfMass() {
     for(int i = 0; i < segments.length; i++) {
+      //Adjust all segments
       segments[i].startPos.x -= x;
       segments[i].startPos.y -= y;
       segments[i].endPos.x -= x;
       segments[i].endPos.y -= y;
     }
+    for(int i = 0; i < thrustVectors.length; i++) {
+      //Adjust thrust vectors
+      thrustVectors[i].startPos.x -= x;
+      thrustVectors[i].startPos.y -= y;
+      thrustVectors[i].endPos.x -= x;
+      thrustVectors[i].endPos.y -= y;
+    }
+    
+    //Reset x and y values
+    x = width / 2;
+    y = height - 60;
   }
   
   void calculateCenterOfMass() {
@@ -38,18 +222,50 @@ class Rocket {
     y = yAggregate/segments.length;
   }
   
+  void calculateInertialMoment() {
+    float inertialAggregate = 0;
+    for(int i = 0; i < segments.length; i++) {
+      //Get center of segment
+      Vector2D center = segments[i].getCenter();
+      float centerDistance = center.magnitude();
+      
+      Vector2D segment = new Vector2D(segments[i].endPos.x - segments[i].startPos.x, segments[i].endPos.y - segments[i].startPos.y);
+      float segmentMass = segment.magnitude();
+      
+      //Formula for inertial moment of a point mass -> I = mr^2
+      inertialAggregate += segmentMass*centerDistance*centerDistance;
+    }
+    inertialMoment = inertialAggregate;
+  }
+  
   void calculateSegments() {
     //Calculate size of segments array
     int segmentsSize = 0;
+    int thrusterCount = 0;
     for(int i = 0; i < rocketParts.length; i++) {
       segmentsSize += rocketParts[i].points.length;
+      if(rocketParts[i].type == RocketPartTypes.THRUSTER) thrusterCount++;
     }
     //Populate segments array
     segments = new LineSegment[segmentsSize];
+    
+    //Populate thruster array
+    thrustVectors = new LineSegment[thrusterCount];
     int counter = 0;
+    int thrustCounter = 0;
     for(int i = 0; i < rocketParts.length; i++) {
       float xOffset = rocketParts[i].x;
       float yOffset = rocketParts[i].y;
+      
+      //Calculate potential thruster positions
+      if(rocketParts[i].type == RocketPartTypes.THRUSTER) {
+        Vector2D endPoint1 = rocketParts[i].points[2];
+        Vector2D endPoint2 = rocketParts[i].points[3];
+        Vector2D midpoint = new Vector2D((endPoint1.x + endPoint2.x)/2, (endPoint1.y + endPoint2.y)/2);
+        thrustVectors[thrustCounter] = new LineSegment((midpoint.x+xOffset)*scale, (midpoint.y+yOffset)*scale, (midpoint.x+xOffset)*scale, (midpoint.y+yOffset+1)*scale);
+        thrustCounter++;
+      }
+      //Calculate segment positions from each point in the part
       for(int j = 0; j < rocketParts[i].points.length-1; j++) {
         Vector2D currentPoint = rocketParts[i].points[j];
         Vector2D nextPoint = rocketParts[i].points[j+1];
@@ -70,6 +286,10 @@ class Rocket {
       for(int j = 0; j < builderGrid.grid[0].length; j++) {
         if(builderGrid.grid[i][j].type != RocketPartTypes.EMPTY) {
           rocketPartSize++;
+        }
+        if(builderGrid.grid[i][j].type == RocketPartTypes.FUEL) {
+          fuelMaximum+=fuelAmountConstant;
+          fuelAggregate+=fuelAmountConstant;
         }
       }
     }
@@ -101,5 +321,8 @@ class Rocket {
     
     //Zero out the rocket to its x/y position
     zeroToCenterOfMass();
+    
+    //Calculate the inertial moment of the rocket
+    calculateInertialMoment();
   }
 }
