@@ -60,15 +60,30 @@ class BuilderGrid {
     boolean hasFuelTank = false;
     boolean hasThruster = false;
     for(int i = 0; i < grid.length; i++) {
-      if(hasCrewCapsule && hasFuelTank && hasThruster) break;
       for(int j = 0; j < grid[0].length; j++) {
         if(grid[i][j].type == RocketPartTypes.CREWCAPSULE) {
+          if(j == grid[0].length-1) {
+            errorText = "You need a structure block below the crew capsule.";
+            return false;
+          }
+          if(grid[i][j+1].type != RocketPartTypes.BLOCK) {
+            errorText = "You need a structure block below the crew capsule.";
+            return false;
+          }
           hasCrewCapsule = true;
         }
         if(grid[i][j].type == RocketPartTypes.FUEL) {
           hasFuelTank = true;
         }
         if(grid[i][j].type == RocketPartTypes.THRUSTER) {
+          if(j == 0) {
+            errorText = "You need a block above the thruster block.";
+            return false;
+          }
+          if(grid[i][j-1].type == RocketPartTypes.EMPTY) {
+            errorText = "You need a block above the thruster block.";
+            return false;
+          }
           hasThruster = true;
         }
       }

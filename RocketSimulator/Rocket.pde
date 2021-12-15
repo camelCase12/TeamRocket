@@ -420,6 +420,7 @@ class Rocket {
         thrustVectors[thrustCounter] = new LineSegment((midpoint.x+xOffset)*scale, (midpoint.y+yOffset)*scale, (midpoint.x+xOffset)*scale, (midpoint.y+yOffset+1)*scale);
         thrustCounter++;
       }
+      
       //Calculate segment positions from each point in the part
       for(int j = 0; j < rocketParts[i].points.length-1; j++) {
         Vector2D currentPoint = rocketParts[i].points[j];
