@@ -22,6 +22,7 @@ int gray = 0;
 SoundFile boop;
 SoundFile menu;
 SoundFile thrust;
+SoundFile ambience;
 
 //Rocket pngs
 PImage fuelImage;
@@ -46,6 +47,7 @@ void setup() {
   boop = new SoundFile(this, "boopclipped.mp3");
   menu = new SoundFile(this, "MainMenuClip.wav");
   thrust = new SoundFile(this, "newRocketSound.wav");
+  ambience = new SoundFile(this, "ambience.wav");
   
   //Initialize images
   fuelImage = loadImage("FuelBlock.png");

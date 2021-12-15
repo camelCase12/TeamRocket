@@ -337,6 +337,14 @@ class Rocket {
     }
     x -= velX;
     y -= velY; // This is very important->velocity is reversed in the y direction for rendering
+    
+    //Play ambience sound if needed
+    if(fuelAggregate <= 0 && thrust.isPlaying()) {
+      thrust.stop();
+    }
+    if(fuelAggregate <= 0 && !ambience.isPlaying()) {
+      ambience.play();
+    }
   }
   
   void zeroToCenterOfMass() {
