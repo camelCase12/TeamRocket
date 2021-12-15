@@ -1,3 +1,5 @@
+import processing.sound.*;
+
 //Global/static variables--each window and the window state
 Window mainMenuWindow;
 Window assemblyWindow;
@@ -16,6 +18,11 @@ int black = 0;
 int white = 255;
 int gray = 0;
 
+//Sound variables
+SoundFile boop;
+SoundFile menu;
+SoundFile thrust;
+
 //Called upon program launch.
 void setup() {
   //Set background color to black and size to 750px*750px
@@ -28,6 +35,11 @@ void setup() {
   initVehicleFlight();
   initOptions();
   initInstructions();
+  
+  //Initialize sounds
+  boop = new SoundFile(this, "boopclipped.mp3");
+  menu = new SoundFile(this, "MainMenuClip.wav");
+  thrust = new SoundFile(this, "newRocketSound.wav");
   
   //Test initialize mouseHolder
   mouseHolder = new MouseHolder();

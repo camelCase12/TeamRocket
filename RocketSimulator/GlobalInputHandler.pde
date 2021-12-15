@@ -2,6 +2,12 @@
 //Events/delegates and lambda functions are both absent from processing--this is
 //the current solution for allowing buttons to execute new code segments.
 void globalButtonHandler(String buttonName) {
+  
+  //Play boop sound if sound is on
+  if(sound) {
+    boop.play();
+  }
+  
   switch(buttonName) {
     case "playGameBtn":
       windowState = WindowState.VEHICLE_ASSEMBLY;
@@ -41,6 +47,9 @@ void globalButtonHandler(String buttonName) {
     case "soundBtn":
       if (sound == true) {
       sound = false;
+      boop.stop();
+      menu.stop();
+      thrust.stop();
       print("Turned the sound off!\n");
       } else {
       sound = true;
@@ -80,6 +89,12 @@ void globalKeyHandler() {
   }
   else if (key == ' ') {
     //Change thrust on and off when space is pressed
+    if(!rocket.thrustState) {
+      thrust.play();
+    }
+    else if (thrust.isPlaying()) {
+      thrust.stop();
+    }
     rocket.thrustState = !rocket.thrustState;
   }
 }

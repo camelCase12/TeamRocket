@@ -1,7 +1,7 @@
 
 class Rocket {
   float x = width / 2;
-  float y = height - 60;
+  float y = height - 140;
   float velX, velY = 0;
   float accX, accY = 0;
   float mass = 20;
@@ -9,7 +9,7 @@ class Rocket {
   float angularPosition; // may be unnecessary?
   float angularVelocity;
   float angularAcceleration;
-  float gConstant = 5;
+  float gConstant = 0.0005;
   float fuelMaximum;
   float fuelAggregate;
   float fuelAmountConstant = 30;
@@ -22,14 +22,45 @@ class Rocket {
   LineSegment[] segments;
   LineSegment[] thrustVectors;
   RocketPart[] rocketParts;
+  Vector2D[] starPositions = new Vector2D[90];
+  Vector2D[] thrustParticles = new Vector2D[40];
   int scale = 30;
   
   void render() {
     stroke(white);
     for(int i = 0; i < segments.length; i++) {
-      line(segments[i].startPos.x+x, segments[i].startPos.y+y, segments[i].endPos.x+x, segments[i].endPos.y+y);
+      line(segments[i].startPos.x+width/2, segments[i].startPos.y+height-140, segments[i].endPos.x+width/2, segments[i].endPos.y+height-140);
     }
     if(debug) {
+      //Draw stars
+      for(int i = 0; i < starPositions.length; i++) {
+        //Move the stars according to rocket movement
+        starPositions[i].y += velY;
+        starPositions[i].x += velX;
+        
+        //Cull and replace stars as they move off screen
+        if(starPositions[i].y > height*2) {
+          starPositions[i].x = random(width*3)-width;
+          starPositions[i].y = -15;
+        }
+        else if(starPositions[i].y < -height) {
+          starPositions[i].x = random(width*3)-width;
+          starPositions[i].y = height+15;
+        }
+        else if(starPositions[i].x > width*2) {
+          starPositions[i].x = -15;
+          starPositions[i].y = random(height*3)-height;
+        }
+        else if(starPositions[i].x < -width) {
+          starPositions[i].x = width+15;
+          starPositions[i].y = random(height*3)-height;
+        }
+        
+        //Draw star
+        circle(starPositions[i].x, starPositions[i].y, 5);
+      }
+      
+      
       //Draw center of mass
       stroke(255, 0, 0);
       fill(255, 0, 0);
@@ -39,7 +70,7 @@ class Rocket {
       stroke(0, 255, 0);
       fill(0, 255, 0);
       for(int i = 0; i < thrustVectors.length; i++) {
-        line(thrustVectors[i].startPos.x+x, thrustVectors[i].startPos.y+y, thrustVectors[i].endPos.x+x, thrustVectors[i].endPos.y+y);
+        line(thrustVectors[i].startPos.x+width/2, thrustVectors[i].startPos.y+height-140, thrustVectors[i].endPos.x+width/2, thrustVectors[i].endPos.y+height-140);
       }
       
       //Draw fuel amount
@@ -48,7 +79,7 @@ class Rocket {
       rect(20, 20, width - 40, 20);
       fill(255);
       stroke(0);
-      rect(21, 21, (fuelAggregate / fuelMaximum) * (width - 42), 18);
+      rect(21, 21, (max(fuelAggregate, 0) / fuelMaximum) * (width - 42), 18);
     }
   }
   
@@ -113,6 +144,9 @@ class Rocket {
         accX += normalizedThrust.x*thrustConstant / mass;
       }
     }
+    
+    //Apply gravity
+    accY -= gConstant * mass;
   }
   
   void calculateAngularAcceleration() {
@@ -125,6 +159,7 @@ class Rocket {
         if(fuelAggregate > 0) {
           fuelAggregate -= fuelUsageConstant; // Reduce fuel to power the thruster
         }
+        else return;
         //Calculate thrust vector
         Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x,
                                              thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
@@ -136,7 +171,16 @@ class Rocket {
         float theta = thrustVector.getAngle(r);
         float torque = r.magnitude() * thrustConstant * sin(theta);
         
-        angularAcceleration += torque/inertialMoment;
+        //Check directionality of torque -> s = x1y2 - y1x2
+        //S being positive or negative indicates directionality
+        float s = r.x*thrustVector.y - r.y*thrustVector.x;
+        
+        //Add to acceleration for this tick
+        if(s > 0) {
+          angularAcceleration += torque/inertialMoment;
+        } else {
+          angularAcceleration -= torque/inertialMoment;
+        }
       }
     }
   }
@@ -185,6 +229,10 @@ class Rocket {
     rotateRocket(angularVelocity);
     velX += accX;
     velY += accY;
+    if(y > height - 140 && velY < 0) {
+      velY = 0;
+      y = height - 140;
+    }
     x -= velX;
     y -= velY; // This is very important->velocity is reversed in the y direction for rendering
   }
@@ -207,7 +255,7 @@ class Rocket {
     
     //Reset x and y values
     x = width / 2;
-    y = height - 60;
+    y = height - 140;
   }
   
   void calculateCenterOfMass() {
@@ -324,5 +372,10 @@ class Rocket {
     
     //Calculate the inertial moment of the rocket
     calculateInertialMoment();
+    
+    //Initialize stars
+    for(int i = 0; i < starPositions.length; i++) {
+      starPositions[i] = new Vector2D(random(width*3)-width, random(height*3)-height);
+    }
   }
 }

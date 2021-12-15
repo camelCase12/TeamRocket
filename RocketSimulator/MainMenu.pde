@@ -8,4 +8,7 @@ void initMainMenu() {
 
 void mainMenuDriver() {
   mainMenuWindow.render();
+  if(sound && !menu.isPlaying()) {
+    menu.play();
+  }
 }

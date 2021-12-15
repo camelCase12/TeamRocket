@@ -10,6 +10,9 @@ void vehicleFlightDriver() {
   rocket.update();
   rocket.render();
   textAlign(LEFT);
-  text("x: "+rocket.x, 40, 200);
-  text("y: "+rocket.y, 40, 250);
+  if(debug) {
+    text("x: "+rocket.x, 40, 200);
+    text("y: "+rocket.y, 40, 250);
+  }
+  text("Height: "+int(max(height-140-rocket.y, 0))+" meters", 40, 300);
 }
