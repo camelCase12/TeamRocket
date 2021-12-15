@@ -10,14 +10,19 @@ void globalButtonHandler(String buttonName) {
   
   switch(buttonName) {
     case "playGameBtn":
+      if(menu.isPlaying()) {
+        menu.stop();
+      }
       windowState = WindowState.VEHICLE_ASSEMBLY;
       break;
     case "mainMenuBtn":
       windowState = WindowState.MAIN_MENU;
       break;
     case "flightBtn":
-      rocket = new Rocket(bg);
-      windowState = WindowState.VEHICLE_FLIGHT;
+      if(bg.verifyGrid()) {
+        rocket = new Rocket(bg);
+        windowState = WindowState.VEHICLE_FLIGHT;
+      }
       break;
     case "optionsBtn":
       windowState = WindowState.OPTIONS;
