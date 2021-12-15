@@ -39,6 +39,9 @@ void globalButtonHandler(String buttonName) {
       if(thrust.isPlaying()) {
         thrust.stop();
       }
+      if(ambience.isPlaying()) {
+        ambience.stop();
+      }
       break;
       
     //Options menu cases
