@@ -20,4 +20,14 @@ void vehicleFlightDriver() {
   
   text("Reached milestone: " + getCurrentMilestone(int(max(height-140-rocket.y, 0))), 40, 350);
   text("Next milestone: " + getNextMilestone(int(max(height-140-rocket.y, 0))), 40, 400);
+  if(int(max(height-140-rocket.y, 0)) <= 0 && rocket.fuelAggregate <= 0) {
+    bg.errorText = "You hit the ground and the game ended.";
+    windowState = WindowState.VEHICLE_ASSEMBLY;
+      if(thrust.isPlaying()) {
+        thrust.stop();
+      }
+      if(ambience.isPlaying()) {
+        ambience.stop();
+      }
+  }
 }
