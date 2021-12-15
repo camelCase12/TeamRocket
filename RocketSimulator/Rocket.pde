@@ -15,24 +15,55 @@ class Rocket {
   float fuelAmountConstant = 30;
   float fuelUsageConstant = 0.01;
   float thrustConstant = 0.4;
+  float maxThrusterAngle = 0.8;
   boolean thrustState = false;
   boolean pitchLeft = false;
   boolean pitchRight = false;
   float rotationConstant = 0.01;
+  float rocketAngle = 0;
   LineSegment[] segments;
   LineSegment[] thrustVectors;
+  float thrusterAngle = 0;
   RocketPart[] rocketParts;
   Vector2D[] starPositions = new Vector2D[90];
   Vector2D[] thrustParticles = new Vector2D[40];
+  Vector2D[] thrustDirections = new Vector2D[40];
+  int frameState = 0; // Only add a thrust particle every 4 frames
+  int thrustIndex = 0;
   int scale = 30;
   
   void render() {
-    stroke(white);
+    //Draw segments
+    /*stroke(white);
     for(int i = 0; i < segments.length; i++) {
       line(segments[i].startPos.x+width/2, segments[i].startPos.y+height-140, segments[i].endPos.x+width/2, segments[i].endPos.y+height-140);
+    }*/
+    
+    //Draw rocket part positions
+    
+    for(int i = 0; i < rocketParts.length; i++) {
+      pushMatrix();
+      translate(width/2+rocketParts[i].x, height-140+rocketParts[i].y);
+      rotate(rocketAngle);
+      switch(rocketParts[i].type) {
+        case RocketPartTypes.FUEL:
+          image(fuelImage, 0, 0);
+          break;
+        case RocketPartTypes.CREWCAPSULE:
+          image(crewImage, 0, 0);
+          break;
+        case RocketPartTypes.THRUSTER:
+          image(thrustImage, 0, 0);
+          break;
+        case RocketPartTypes.BLOCK:
+          image(structureImage, 0, 0);
+          break;
+      }
+      popMatrix();
+       // circle(rocketParts[i].x+width/2, rocketParts[i].y+height-140, 8);
     }
-    if(debug) {
-      //Draw stars
+    
+    //Draw stars
       for(int i = 0; i < starPositions.length; i++) {
         //Move the stars according to rocket movement
         starPositions[i].y += velY;
@@ -60,6 +91,15 @@ class Rocket {
         circle(starPositions[i].x, starPositions[i].y, 5);
       }
       
+      //Draw fuel amount
+      stroke(255);
+      fill(0);
+      rect(20, 20, width - 40, 20);
+      fill(255);
+      stroke(0);
+      rect(21, 21, (max(fuelAggregate, 0) / fuelMaximum) * (width - 42), 18);
+      
+    if(debug) {
       
       //Draw center of mass
       stroke(255, 0, 0);
@@ -73,19 +113,23 @@ class Rocket {
         line(thrustVectors[i].startPos.x+width/2, thrustVectors[i].startPos.y+height-140, thrustVectors[i].endPos.x+width/2, thrustVectors[i].endPos.y+height-140);
       }
       
-      //Draw fuel amount
-      stroke(255);
-      fill(0);
-      rect(20, 20, width - 40, 20);
-      fill(255);
-      stroke(0);
-      rect(21, 21, (max(fuelAggregate, 0) / fuelMaximum) * (width - 42), 18);
+      
     }
   }
   
   //Rotates the rocket and its thrust vectors about the center of mass by angleRads
   void rotateRocket(float angleRads) {
+    //Update rocket angle
+    rocketAngle -= angleRads;
+    if(rocketAngle > PI*2) {
+      rocketAngle -= PI*2;
+    }
+    else if (rocketAngle < -PI*2) {
+      rocketAngle += PI*2;
+    }
+    
     //Flip the polarity to ensure counterclockwise rotation for positive angles
+    
     angleRads = -angleRads;
     
     //Rotate main segments
@@ -103,6 +147,20 @@ class Rocket {
       //Assign new rotated values
       segments[i].startPos = newStartPos;
       segments[i].endPos = newEndPos;
+    }
+    
+    //Rotate rocket parts
+    for(int i = 0; i < rocketParts.length; i++) {
+      //Points to rotate -> are already in relation to center of mass
+      Vector2D rocketPartPosition = new Vector2D(rocketParts[i].x, rocketParts[i].y);
+      
+      //Calculate rotated points
+      Vector2D newRocketPartPosition = new Vector2D(rocketPartPosition.x * cos(angleRads) - rocketPartPosition.y * sin(angleRads),
+                                          rocketPartPosition.x * sin(angleRads) + rocketPartPosition.y * cos(angleRads));
+      
+      //Assign new rotated values
+      rocketParts[i].x = newRocketPartPosition.x;
+      rocketParts[i].y = newRocketPartPosition.y;
     }
     
     //Rotate thrust vectors
@@ -187,8 +245,11 @@ class Rocket {
   
   //Changes the angles of thrusters if left/right keys are pressed
   void angleThrusters() {
-    if(pitchLeft) {
+    if(pitchLeft && thrusterAngle < maxThrusterAngle) {
       for(int i = 0; i < thrustVectors.length; i++) {
+        //Update thruster angle
+        thrusterAngle += rotationConstant;
+        
         //Get thrustVector zeroed to its start point
         Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x, thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
         
@@ -201,8 +262,11 @@ class Rocket {
         thrustVectors[i].endPos.y = thrustVectors[i].startPos.y + newThrustVector.y;
       }
     }
-    if(pitchRight) {
+    if(pitchRight && thrusterAngle > -maxThrusterAngle) {
       for(int i = 0; i < thrustVectors.length; i++) {
+        //Update thruster angle
+        thrusterAngle -= rotationConstant;
+        
         //Get thrustVector zeroed to its start point
         Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x, thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
         
@@ -217,10 +281,48 @@ class Rocket {
     }
   }
   
+  void handleThrust() {
+    //Iterate through thrust vectors and spawn particles if thrustState is on
+    frameState++;
+    if(thrustState && frameState >= 3 && fuelAggregate > 0) {
+      frameState = 0;
+      for(int i = 0; i < thrustVectors.length; i++) {
+        thrustParticles[thrustIndex] = new Vector2D(thrustVectors[i].startPos.x, thrustVectors[i].startPos.y);
+      
+        float randomAngleDeviation = random(1) - 0.5;
+        Vector2D thrustVector = new Vector2D(thrustVectors[i].endPos.x - thrustVectors[i].startPos.x, thrustVectors[i].endPos.y - thrustVectors[i].startPos.y);
+      
+        Vector2D newThrustVector = new Vector2D(thrustVector.x * cos(-randomAngleDeviation) - thrustVector.y * sin(-randomAngleDeviation),
+                                                thrustVector.x * sin(-randomAngleDeviation) + thrustVector.y * cos(-randomAngleDeviation));
+                                                
+        thrustDirections[thrustIndex] = newThrustVector.getNormalized(); // Normalize for slow movement
+      
+        thrustIndex++;
+        if(thrustIndex >= thrustParticles.length) {
+          thrustIndex = 0;
+        }
+      }
+    }
+    
+    for(int i = 0; i < thrustParticles.length; i++) {
+      //Update particle position
+      thrustParticles[i].x += thrustDirections[i].x;
+      thrustParticles[i].y += thrustDirections[i].y;
+      
+      //Draw
+      stroke(white);
+      fill(white);
+      rect(thrustParticles[i].x + width / 2, thrustParticles[i].y + height - 140, 5, 5);
+    }
+  }
+  
   void update() {
     
     //Angle the thrusters according to input
     angleThrusters();
+    
+    //Animate thrust from rocket
+    handleThrust();
     
     //Calculate basic physics
     calculateLinearAcceleration();
@@ -244,6 +346,11 @@ class Rocket {
       segments[i].startPos.y -= y;
       segments[i].endPos.x -= x;
       segments[i].endPos.y -= y;
+    }
+    for(int i = 0; i < rocketParts.length; i++) {
+      //Adjust all rocket parts
+      rocketParts[i].x -= x;
+      rocketParts[i].y -= y;
     }
     for(int i = 0; i < thrustVectors.length; i++) {
       //Adjust thrust vectors
@@ -324,6 +431,10 @@ class Rocket {
       Vector2D firstPoint = rocketParts[i].points[0];
       segments[counter] = new LineSegment((lastPoint.x+xOffset)*scale, (lastPoint.y+yOffset)*scale, (firstPoint.x+xOffset)*scale, (firstPoint.y+yOffset)*scale);
       counter++;
+      
+      //Scale rocket part size
+      rocketParts[i].x *= scale;
+      rocketParts[i].y *= scale;
     }
   }
   
@@ -376,6 +487,12 @@ class Rocket {
     //Initialize stars
     for(int i = 0; i < starPositions.length; i++) {
       starPositions[i] = new Vector2D(random(width*3)-width, random(height*3)-height);
+    }
+    
+    //Initialize thrust particles
+    for(int i = 0; i < thrustParticles.length; i++) {
+      thrustParticles[i] = new Vector2D(-40, -40);
+      thrustDirections[i] = new Vector2D(0, 0);
     }
   }
 }

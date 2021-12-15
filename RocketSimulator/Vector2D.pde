@@ -4,7 +4,14 @@ class Vector2D {
   float x, y;
   
   float getAngle(Vector2D otherVector) {
-    return acos((otherVector.x * x + otherVector.y * y) / (magnitude() * otherVector.magnitude()));
+    Vector2D thisNormalized = this.getNormalized();
+    Vector2D otherNormalized = otherVector.getNormalized();
+    float angle = acos(constrain((otherNormalized.x * thisNormalized.x + otherNormalized.y * thisNormalized.y) / (thisNormalized.magnitude() * otherNormalized.magnitude()), -1, 1));
+    if(Float.isNaN(angle)) {
+      println("get angle nanned");
+      exit();
+    }
+    return angle;
   }
   float magnitude() {
     return sqrt(x*x + y*y);

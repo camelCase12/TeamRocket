@@ -13,7 +13,7 @@ Rocket rocket;
 
 //Options menu variables
 boolean sound = true;
-boolean debug = true;
+boolean debug = false;
 int black = 0;
 int white = 255;
 int gray = 0;
@@ -22,6 +22,12 @@ int gray = 0;
 SoundFile boop;
 SoundFile menu;
 SoundFile thrust;
+
+//Rocket pngs
+PImage fuelImage;
+PImage crewImage;
+PImage thrustImage;
+PImage structureImage;
 
 //Called upon program launch.
 void setup() {
@@ -40,6 +46,15 @@ void setup() {
   boop = new SoundFile(this, "boopclipped.mp3");
   menu = new SoundFile(this, "MainMenuClip.wav");
   thrust = new SoundFile(this, "newRocketSound.wav");
+  
+  //Initialize images
+  fuelImage = loadImage("FuelBlock.png");
+  crewImage = loadImage("CrewBlockDark.png");
+  thrustImage = loadImage("ThrusterBlock.png");
+  structureImage = loadImage("StructureBlock.png");
+  
+  //Initialize milestones
+  initMilestones();
   
   //Test initialize mouseHolder
   mouseHolder = new MouseHolder();

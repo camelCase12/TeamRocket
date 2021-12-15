@@ -22,6 +22,7 @@ void globalButtonHandler(String buttonName) {
       if(bg.verifyGrid()) {
         rocket = new Rocket(bg);
         windowState = WindowState.VEHICLE_FLIGHT;
+        flightWindow.addLabel(30, height/2+50, 50, 50, "instructionLbl", "Tap space to toggle thrust, Use Left/Right arrows to angle thrust.", 20);
       }
       break;
     case "optionsBtn":
@@ -35,6 +36,9 @@ void globalButtonHandler(String buttonName) {
       break;
     case "exitFlightBtn":
       windowState = WindowState.VEHICLE_ASSEMBLY;
+      if(thrust.isPlaying()) {
+        thrust.stop();
+      }
       break;
       
     //Options menu cases
@@ -94,13 +98,14 @@ void globalKeyHandler() {
   }
   else if (key == ' ') {
     //Change thrust on and off when space is pressed
-    if(!rocket.thrustState) {
+    if(!rocket.thrustState && rocket.fuelAggregate > 0) {
       thrust.play();
     }
     else if (thrust.isPlaying()) {
       thrust.stop();
     }
     rocket.thrustState = !rocket.thrustState;
+    flightWindow.removeLabel("instructionLbl");
   }
 }
 

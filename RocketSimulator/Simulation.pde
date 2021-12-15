@@ -14,5 +14,10 @@ void vehicleFlightDriver() {
     text("x: "+rocket.x, 40, 200);
     text("y: "+rocket.y, 40, 250);
   }
+  
+  textSize(20);
   text("Height: "+int(max(height-140-rocket.y, 0))+" meters", 40, 300);
+  
+  text("Reached milestone: " + getCurrentMilestone(int(max(height-140-rocket.y, 0))), 40, 350);
+  text("Next milestone: " + getNextMilestone(int(max(height-140-rocket.y, 0))), 40, 400);
 }
